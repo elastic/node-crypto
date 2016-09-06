@@ -4,7 +4,8 @@
   "description": "Easy (yet strong) encryption and decryption facilities for Node.js",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf lib && babel src --out-dir lib",
+    "clean": "rm -rf lib coverage* .nyc_output",
+    "build": "npm run clean && babel src --out-dir lib",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "test": "retire -n -p package.json && npm run build && npm run unit",
     "unit": "nyc --require babel-core/register mocha test/src/**"
