@@ -2,7 +2,7 @@
   "name": "node-crypto",
   "version": "0.0.1",
   "description": "Easy (yet strong) encryption and decryption facilities for Node.js",
-  "main": "index.js",
+  "main": "lib/crypto.js",
   "scripts": {
     "clean": "rm -rf lib coverage* .nyc_output",
     "build": "npm run clean && babel src --out-dir lib",
