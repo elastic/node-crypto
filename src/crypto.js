@@ -21,8 +21,8 @@ const KEY_DIGEST = 'sha512';
 const CIPHER_ALGORITHM = 'aes-256-gcm';
 const ENCRYPTION_RESULT_ENCODING = 'base64';
 
-function _validateOpts(opts) {
-  if (!opts.encryptionKey) {
+function _validateOpts({ encryptionKey }) {
+  if (!encryptionKey) {
     throw new Error('encryptionKey is required');
   }
 }
@@ -74,7 +74,7 @@ function _serialize(obj) {
 export default function makeCryptoWith(opts) {
 
   _validateOpts(opts);
-  const encryptionKey = opts.encryptionKey;
+  const { encryptionKey } = opts;
 
   function encrypt(input) {
     const salt = _generateSalt();
