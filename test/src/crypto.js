@@ -1,6 +1,6 @@
 import expect from 'expect.js';
 import sinon from 'sinon';
-import makeCryptoWith from '../../src/crypto';
+import makeCryptoWith from '../../lib/crypto';
 
 describe('crypto', () => {
   let crypto;
