@@ -1,6 +1,6 @@
 {
   "name": "@elastic/node-crypto",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Easy (yet strong) encryption and decryption facilities for Node.js",
   "main": "lib/crypto.js",
   "scripts": {
