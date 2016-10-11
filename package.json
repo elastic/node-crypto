@@ -1,6 +1,6 @@
 {
   "name": "@elastic/node-crypto",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Easy (yet strong) encryption and decryption facilities for Node.js",
   "main": "lib/crypto.js",
   "scripts": {
@@ -22,21 +22,16 @@
   "homepage": "https://github.com/elastic/node-crypto#readme",
   "devDependencies": {
     "@elastic/eslint-config-kibana": "0.2.0",
-    "babel-cli": "6.14.0",
-    "babel-core": "6.14.0",
+    "@spalger/babel-presets": "0.3.2",
+    "babel-cli": "6.16.0",
+    "babel-core": "6.17.0",
     "babel-eslint": "6.1.2",
     "babel-plugin-add-module-exports": "0.2.1",
-    "babel-plugin-transform-async-functions": "6.8.0",
-    "babel-plugin-transform-regenerator": "6.14.0",
-    "babel-plugin-transform-runtime": "6.15.0",
-    "babel-polyfill": "6.13.0",
-    "babel-preset-es2015": "6.14.0",
     "eslint": "3.4.0",
     "eslint-plugin-mocha": "4.5.1",
     "expect.js": "0.3.1",
     "mocha": "3.0.2",
     "nyc": "8.1.0",
-    "regenerator": "0.8.46",
     "retire": "1.2.10",
     "sinon": "1.17.5"
   }
