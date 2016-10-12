@@ -1,9 +1,6 @@
 {
-  "presets": [ "es2015" ],
+  "presets": [ "@spalger/babel-presets" ],
   "plugins": [
-    "add-module-exports",
-    "transform-async-functions",
-    "transform-runtime",
-    "transform-regenerator"
+    "add-module-exports"
   ]
 }
