@@ -153,4 +153,24 @@ describe('crypto', () => {
       expect(await crypto.decrypt(encrypted)).to.be('I am a string');
     });
   });
+
+  describe('Using AAD', () => {
+    it('should decryptable with same AAD', async () => {
+      const encrypted = await crypto.encrypt('Hello World!', 'some aad');
+
+      const decrypted = await crypto.decrypt(encrypted, 'some aad');
+      expect(decrypted).to.be.equal('Hello World!');
+    });
+
+    it('should not be decryptable without aad used in encryption', async () => {
+      const encrypted = await crypto.encrypt('Hello World!', 'some aad');
+      try {
+        const decrypted = await crypto.decrypt(encrypted);
+        throw new Error(`Decryption should fail but value was ${decrypted}`);
+      }catch(err) {
+        expect(err).to.be.an(Error);
+        expect(err.message).to.match(/Unsupported state or unable to authenticate data/);
+      }
+    });
+  });
 });

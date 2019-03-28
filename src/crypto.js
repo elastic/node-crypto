@@ -76,7 +76,7 @@ export default function makeCryptoWith(opts) {
   _validateOpts(opts);
   const { encryptionKey } = opts;
 
-  function encrypt(input) {
+  function encrypt(input, aad) {
     const salt = _generateSalt();
 
     return Promise.all([
@@ -88,6 +88,10 @@ export default function makeCryptoWith(opts) {
       const [ serializedInput, iv, key ] = results;
       const cipher = crypto.createCipheriv(CIPHER_ALGORITHM, key, iv);
 
+      if(aad !== undefined) {
+        cipher.setAAD(Buffer.from(aad, 'utf8'));
+      }
+
       const encrypted = Buffer.concat([cipher.update(serializedInput, 'utf8'), cipher.final()]);
       const tag = cipher.getAuthTag();
 
@@ -95,7 +99,7 @@ export default function makeCryptoWith(opts) {
     });
   }
 
-  async function decrypt(output) {
+  async function decrypt(output, aad) {
 
     const outputBytes = new Buffer(output, ENCRYPTION_RESULT_ENCODING);
 
@@ -107,6 +111,9 @@ export default function makeCryptoWith(opts) {
     const key = await _generateKey(encryptionKey, salt);
     const decipher = crypto.createDecipheriv(CIPHER_ALGORITHM, key, iv);
     decipher.setAuthTag(tag);
+    if(aad !== undefined) {
+      decipher.setAAD(Buffer.from(aad, 'utf8'));
+    }
 
     const decrypted = decipher.update(text, 'binary', 'utf8') + decipher.final('utf8');
     return JSON.parse(decrypted);
