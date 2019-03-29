@@ -172,5 +172,16 @@ describe('crypto', () => {
         expect(err.message).to.match(/Unsupported state or unable to authenticate data/);
       }
     });
+
+    it('should not be decryptable with the wrong aad', async () => {
+      const encrypted = await crypto.encrypt('Hello World!', '123456789');
+      try {
+        const decrypted = await crypto.decrypt(encrypted, '123456780');
+	throw new Error(`Decryption should fail but value was ${decrypted}`);
+      }catch(err) {
+        expect(err).to.be.an(Error);
+        expect(err.message).to.match(/Unsupported state or unable to authenticate data/);
+      }
+    });
   });
 });
