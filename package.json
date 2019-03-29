@@ -23,15 +23,15 @@
   "devDependencies": {
     "@elastic/eslint-config-kibana": "0.2.0",
     "@spalger/babel-presets": "0.3.2",
-    "babel-cli": "6.26.0",
+    "babel-cli": "6.16.0",
     "babel-core": "6.17.0",
     "babel-eslint": "6.1.2",
     "babel-plugin-add-module-exports": "0.2.1",
     "eslint": "3.4.0",
     "eslint-plugin-mocha": "4.4.0",
     "expect.js": "0.3.1",
-    "mocha": "6.0.2",
-    "nyc": "13.3.0",
+    "mocha": "3.0.2",
+    "nyc": "8.1.0",
     "retire": "1.2.10",
     "sinon": "1.17.5"
   }
