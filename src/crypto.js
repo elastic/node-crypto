@@ -27,7 +27,7 @@ function _validateOpts({ encryptionKey }) {
   }
 }
 
-function _validateAADType(aad) {
+function _validateAAD(aad) {
   if(aad == null) {
     return;
   }
@@ -91,6 +91,7 @@ export default function makeCryptoWith(opts) {
   const { encryptionKey } = opts;
 
   function encrypt(input, aad) {
+    _validateAAD(aad);
     const salt = _generateSalt();
 
     return Promise.all([
@@ -99,7 +100,6 @@ export default function makeCryptoWith(opts) {
       _generateKey(encryptionKey, salt)
     ])
     .then(results => {
-      _validateAADType(aad);
       const [ serializedInput, iv, key ] = results;
       const cipher = crypto.createCipheriv(CIPHER_ALGORITHM, key, iv);
 
@@ -115,7 +115,7 @@ export default function makeCryptoWith(opts) {
   }
 
   async function decrypt(output, aad) {
-    _validateAADType(aad);
+    _validateAAD(aad);
     const outputBytes = new Buffer(output, ENCRYPTION_RESULT_ENCODING);
 
     const salt = outputBytes.slice(0, SALT_LENGTH_IN_BYTES);
