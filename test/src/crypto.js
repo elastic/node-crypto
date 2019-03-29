@@ -163,7 +163,7 @@ describe('crypto', () => {
             throw new Error('Encryption should fail!');
           }catch(err) {
             expect(err).to.be.an(Error);
-            expect(err.message).to.match(/AAD must be a non-empty string/);
+            expect(err.message).to.match(/AAD cannot be an empty string/);
           }
         });
 
@@ -179,7 +179,7 @@ describe('crypto', () => {
             throw new Error('Encryption should fail!');
           }catch(err) {
             expect(err).to.be.an(Error);
-            expect(err.message).to.match(/AAD must be a non-empty string/);
+            expect(err.message).to.match(/AAD must be a string/);
           }
         });
 
@@ -189,7 +189,7 @@ describe('crypto', () => {
             throw new Error('Encryption should fail!');
           }catch(err) {
             expect(err).to.be.an(Error);
-            expect(err.message).to.match(/AAD must be a non-empty string/);
+            expect(err.message).to.match(/AAD must be a string/);
           }
         });
 
@@ -199,7 +199,7 @@ describe('crypto', () => {
             throw new Error('Encryption should fail!');
           }catch(err) {
             expect(err).to.be.an(Error);
-            expect(err.message).to.match(/AAD must be a non-empty string/);
+            expect(err.message).to.match(/AAD must be a string/);
           }
         });
       });
@@ -213,7 +213,7 @@ describe('crypto', () => {
             throw new Error('Decryption should fail!');
           }catch(err) {
             expect(err).to.be.an(Error);
-            expect(err.message).to.match(/AAD must be a non-empty string/);
+            expect(err.message).to.match(/AAD cannot be an empty string/);
           }
         });
 
@@ -229,7 +229,7 @@ describe('crypto', () => {
             throw new Error('Decryption should fail!');
           }catch(err) {
             expect(err).to.be.an(Error);
-            expect(err.message).to.match(/AAD must be a non-empty string/);
+            expect(err.message).to.match(/AAD must be a string/);
           }
         });
 
@@ -239,7 +239,7 @@ describe('crypto', () => {
             throw new Error('Decryption should fail!');
           }catch(err) {
             expect(err).to.be.an(Error);
-            expect(err.message).to.match(/AAD must be a non-empty string/);
+            expect(err.message).to.match(/AAD must be a string/);
           }
         });
 
@@ -249,7 +249,7 @@ describe('crypto', () => {
             throw new Error('Decryption should fail!');
           }catch(err) {
             expect(err).to.be.an(Error);
-            expect(err.message).to.match(/AAD must be a non-empty string/);
+            expect(err.message).to.match(/AAD must be a string/);
           }
         });
       });
