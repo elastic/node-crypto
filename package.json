@@ -8,7 +8,8 @@
     "build": "npm run clean && babel src --out-dir lib",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "test": "retire -n -p package.json && npm run build && npm run unit",
-    "unit": "nyc --require babel-core/register mocha test/src/**"
+    "unit": "nyc --require babel-core/register jest test/src/**",
+    "test:watch:": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -29,10 +30,8 @@
     "babel-plugin-add-module-exports": "0.2.1",
     "eslint": "3.4.0",
     "eslint-plugin-mocha": "4.5.1",
-    "expect.js": "0.3.1",
-    "mocha": "3.0.2",
+    "jest": "^23.0.0",
     "nyc": "8.1.0",
-    "retire": "1.2.10",
-    "sinon": "1.17.5"
+    "retire": "1.2.10"
   }
 }
