@@ -5,10 +5,10 @@
   "main": "lib/crypto.js",
   "scripts": {
     "clean": "rm -rf lib coverage* .nyc_output",
-    "build": "npm run clean && babel src --out-dir lib",
+    "build": "npm run clean && babel src --out-dir lib --ignore '**/*.test.js'",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "test": "retire -n -p package.json && npm run build && npm run unit",
-    "unit": "nyc --require babel-core/register jest test/src/**"
+    "unit": "nyc --require babel-core/register jest src/**"
   },
   "repository": {
     "type": "git",

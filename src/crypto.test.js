@@ -1,4 +1,4 @@
-import makeCryptoWith from '../../lib/crypto';
+import makeCryptoWith from './crypto';
 
 describe('crypto', () => {
   let crypto;
