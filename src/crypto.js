@@ -90,7 +90,7 @@ export default function makeCryptoWith(opts) {
   _validateOpts(opts);
   const { encryptionKey } = opts;
 
-  function encrypt(input, aad) {
+  async function encrypt(input, aad) {
     _validateAAD(aad);
     const salt = _generateSalt();
 
