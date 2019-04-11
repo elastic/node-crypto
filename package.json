@@ -5,10 +5,10 @@
   "main": "lib/crypto.js",
   "scripts": {
     "clean": "rm -rf lib coverage* .nyc_output",
-    "build": "npm run clean && babel src --out-dir lib",
+    "build": "npm run clean && babel src --out-dir lib --ignore '**/*.test.js'",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "test": "retire -n -p package.json && npm run build && npm run unit",
-    "unit": "nyc --require babel-core/register mocha test/src/**"
+    "unit": "nyc --require babel-core/register jest src/**"
   },
   "repository": {
     "type": "git",
@@ -29,10 +29,8 @@
     "babel-plugin-add-module-exports": "0.2.1",
     "eslint": "4.1.0",
     "eslint-plugin-mocha": "^4.9.0",
-    "expect.js": "0.3.1",
-    "mocha": "3.0.2",
+    "jest": "^23.0.0",
     "nyc": "8.1.0",
-    "retire": "1.2.10",
-    "sinon": "1.17.5"
+    "retire": "1.2.10"
   }
 }

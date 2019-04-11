@@ -1,6 +1,4 @@
-import expect from 'expect.js';
-import sinon from 'sinon';
-import makeCryptoWith from '../../lib/crypto';
+import makeCryptoWith from './crypto';
 
 describe('crypto', () => {
   let crypto;
@@ -14,16 +12,8 @@ describe('crypto', () => {
 
   describe('encrypt()', () => {
     it ('fails if given an object that is not serializable', async () => {
-
-      try {
-        const testObj = () => 'I am a function';
-        await crypto.encrypt(testObj);
-        throw new Error('Encryption should fail');
-      } catch (err) {
-        expect(err).to.be.an(Error);
-        expect(err.message).to.match(/Object to be encrypted must be serializable/);
-      }
-
+      const testObj = () => 'I am a function';
+      await expect(crypto.encrypt(testObj)).rejects.toThrow(/Object to be encrypted must be serializable/);
     });
   });
 
@@ -35,7 +25,7 @@ describe('crypto', () => {
       const encrypted = await crypto.encrypt(testObj);
       const decrypted = await crypto.decrypt(encrypted);
 
-      expect(decrypted).to.eql(testObj);
+      expect(decrypted).toEqual(testObj);
     });
 
     it ('can handle numbers', async () => {
@@ -44,7 +34,7 @@ describe('crypto', () => {
       const encrypted = await crypto.encrypt(testObj);
       const decrypted = await crypto.decrypt(encrypted);
 
-      expect(decrypted).to.eql(testObj);
+      expect(decrypted).toEqual(testObj);
     });
 
     it ('can handle booleans', async () => {
@@ -53,7 +43,7 @@ describe('crypto', () => {
       const encrypted = await crypto.encrypt(testObj);
       const decrypted = await crypto.decrypt(encrypted);
 
-      expect(decrypted).to.eql(testObj);
+      expect(decrypted).toEqual(testObj);
     });
 
     it ('can handle arrays', async () => {
@@ -62,7 +52,7 @@ describe('crypto', () => {
       const encrypted = await crypto.encrypt(testObj);
       const decrypted = await crypto.decrypt(encrypted);
 
-      expect(decrypted).to.eql(testObj);
+      expect(decrypted).toEqual(testObj);
     });
 
     it ('can handle objects', async () => {
@@ -76,7 +66,7 @@ describe('crypto', () => {
       const encrypted = await crypto.encrypt(testObj);
       const decrypted = await crypto.decrypt(encrypted);
 
-      expect(decrypted).to.eql(testObj);
+      expect(decrypted).toEqual(testObj);
     });
 
   });
@@ -89,13 +79,8 @@ describe('crypto', () => {
       const encryptedBytes = new Buffer(encrypted);
       const encryptedBytesWithModifiedSalt = encryptedBytes.fill('s', 0, 64); // salt is 64 bytes long starting at byte 0
 
-      try {
-        await crypto.decrypt(encryptedBytesWithModifiedSalt);
-        throw new Error('Encryption should fail');
-      } catch (err) {
-        expect(err).to.be.an(Error);
-        expect(err.message).to.match(/Unsupported state or unable to authenticate data/);
-      }
+      await expect(crypto.decrypt(encryptedBytesWithModifiedSalt))
+        .rejects.toThrow(/Unsupported state or unable to authenticate data/);
     });
 
     it ('fails when its input contains a modified IV', async () => {
@@ -105,13 +90,8 @@ describe('crypto', () => {
       const encryptedBytes = new Buffer(encrypted);
       const encryptedBytesWithModifiedIV = encryptedBytes.fill('i', 64, 76); // iv is 12 bytes long, starting a byte 64
 
-      try {
-        await crypto.decrypt(encryptedBytesWithModifiedIV);
-        throw new Error('Encryption should fail');
-      } catch (err) {
-        expect(err).to.be.an(Error);
-        expect(err.message).to.match(/Unsupported state or unable to authenticate data/);
-      }
+      await expect(crypto.decrypt(encryptedBytesWithModifiedIV))
+        .rejects.toThrow(/Unsupported state or unable to authenticate data/);
     });
 
     it ('fails when its input contains a modified auth tag', async () => {
@@ -121,13 +101,8 @@ describe('crypto', () => {
       const encryptedBytes = new Buffer(encrypted);
       const encryptedBytesWithModifiedAuthTag = encryptedBytes.fill('i', 76, 92); // auth tag is 16 bytes long, starting a byte 76
 
-      try {
-        await crypto.decrypt(encryptedBytesWithModifiedAuthTag);
-        throw new Error('Encryption should fail');
-      } catch (err) {
-        expect(err).to.be.an(Error);
-        expect(err.message).to.match(/Unsupported state or unable to authenticate data/);
-      }
+      await expect(crypto.decrypt(encryptedBytesWithModifiedAuthTag))
+        .rejects.toThrow(/Unsupported state or unable to authenticate data/);
     });
 
     it ('fails when its input contains a modified encrypted value', async () => {
@@ -137,20 +112,15 @@ describe('crypto', () => {
       const encryptedBytes = new Buffer(encrypted);
       const encryptedBytesWithModifiedEncryptedValue = encryptedBytes.fill('i', 92); // encrypted value starts at byte 92
 
-      try {
-        await crypto.decrypt(encryptedBytesWithModifiedEncryptedValue);
-        throw new Error('Encryption should fail');
-      } catch (err) {
-        expect(err).to.be.an(Error);
-        expect(err.message).to.match(/Unsupported state or unable to authenticate data/);
-      }
+      await expect(crypto.decrypt(encryptedBytesWithModifiedEncryptedValue))
+        .rejects.toThrow(/Unsupported state or unable to authenticate data/);
     });
   });
 
   describe('backwards compatibility break test', () => {
     it ('correctly decrypts a encrypted string literal', async () => {
       const encrypted = 'GxM6gGXoR9z+/B4wBjI1dp0B8pcE1+nfyEqIKanp45Ec0QV1eGp6821Xc2IGAnGeYGq9RbdHxYe+yBG4uykPNH8NNdSiNoWKzjSyuYuvGYTgxeYwI3nMLo8y5WVxEWsO/Gn5VYDFG3xQYXg=';
-      expect(await crypto.decrypt(encrypted)).to.be('I am a string');
+      expect(await crypto.decrypt(encrypted)).toBe('I am a string');
     });
   });
 
