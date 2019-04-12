@@ -123,4 +123,75 @@ describe('crypto', () => {
       expect(await crypto.decrypt(encrypted)).toBe('I am a string');
     });
   });
+
+  describe('Using AAD', () => {
+    describe('type validation', () => {
+      describe('for encrypt', () => {
+        it('should throw an error if aad is empty string', async () => {
+          await expect(crypto.encrypt('Hello World!', '')).rejects.toThrowError(/AAD cannot be an empty string/);
+        });
+
+        it('should be valid for string', async () => {
+          const encrypted = await crypto.encrypt('Hello World!', 'should succeed');
+          expect(encrypted).not.toBeUndefined();
+          expect(encrypted).not.toEqual('Hello World!');
+        });
+
+        it('should throw an error if AAD is an Array', async () => {
+          await expect(crypto.encrypt('Hello World!', ['a','b'])).rejects.toThrowError(/AAD must be a string/);
+        });
+
+        it('should throw an error if AAD is an Object', async () => {
+          await expect(crypto.encrypt('Hello World!', {})).rejects.toThrowError(/AAD must be a string/);
+        });
+
+        it('should throw an error if AAD is an function', async () => {
+          await expect(crypto.encrypt('Hello World!', () => {})).rejects.toThrowError(/AAD must be a string/);
+        });
+      });
+
+      describe('for decrypt', () => {
+        const encrypted = 'ImI9iJzw8dc3g47sM0fdJTa1+N+h9EI12kzFt1dzewuKx4E3rO6d6lqH+VSYNAf1H3m9HX/SFb0ZeJBx06NtERF2j9rY+1PtrOkJQfQCqnVC1PdlguZAMTG38vEfKBMgrJiK2+fqBFH80A==';
+
+        it('should throw an error if aad is empty string', async () => {
+          await expect(crypto.decrypt(encrypted, '')).rejects.toThrowError(/AAD cannot be an empty string/);
+        });
+
+        it('should be valid for string', async () => {
+          const decrypted = await crypto.decrypt(encrypted, 'should succeed');
+          expect(decrypted).not.toBeUndefined();
+          expect(decrypted).toEqual('Hello World!');
+        });
+
+        it('should throw an error if AAD is an Array', async () => {
+          await expect(crypto.decrypt(encrypted, ['a','b'])).rejects.toThrowError(/AAD must be a string/);
+        });
+
+        it('should throw an error if AAD is an Object', async () => {
+          await expect(crypto.decrypt(encrypted, {})).rejects.toThrowError(/AAD must be a string/);
+        });
+
+        it('should throw an error if AAD is an function', async () => {
+          await expect(crypto.decrypt(encrypted, () => {})).rejects.toThrowError(/AAD must be a string/);
+        });
+      });
+    });
+
+    it('should be decryptable with same AAD', async () => {
+      const encrypted = await crypto.encrypt('Hello World!', 'some aad');
+
+      const decrypted = await crypto.decrypt(encrypted, 'some aad');
+      expect(decrypted).toEqual('Hello World!');
+    });
+
+    it('should not be decryptable without aad used in encryption', async () => {
+      const encrypted = await crypto.encrypt('Hello World!', 'some aad');
+      await expect(crypto.decrypt(encrypted)).rejects.toThrowError(/Unsupported state or unable to authenticate data/);
+    });
+
+    it('should not be decryptable with the wrong aad', async () => {
+      const encrypted = await crypto.encrypt('Hello World!', '123456789');
+      await expect(crypto.decrypt(encrypted, '123456780')).rejects.toThrowError(/Unsupported state or unable to authenticate data/);
+    });
+  });
 });

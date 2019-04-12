@@ -27,6 +27,20 @@ function _validateOpts({ encryptionKey }) {
   }
 }
 
+function _validateAAD(aad) {
+  if(aad == null) {
+    return;
+  }
+
+  if(typeof aad !== 'string') {
+    throw new Error('AAD must be a string');
+  }
+
+  if(aad.length === 0) {
+    throw new Error('AAD cannot be an empty string');
+  }
+}
+
 function _generateSalt() {
   return crypto.randomBytes(SALT_LENGTH_IN_BYTES);
 }
@@ -76,7 +90,8 @@ export default function makeCryptoWith(opts) {
   _validateOpts(opts);
   const { encryptionKey } = opts;
 
-  function encrypt(input) {
+  async function encrypt(input, aad) {
+    _validateAAD(aad);
     const salt = _generateSalt();
 
     return Promise.all([
@@ -88,6 +103,10 @@ export default function makeCryptoWith(opts) {
       const [ serializedInput, iv, key ] = results;
       const cipher = crypto.createCipheriv(CIPHER_ALGORITHM, key, iv);
 
+      if(aad != null) {
+        cipher.setAAD(Buffer.from(aad, 'utf8'));
+      }
+
       const encrypted = Buffer.concat([cipher.update(serializedInput, 'utf8'), cipher.final()]);
       const tag = cipher.getAuthTag();
 
@@ -95,8 +114,8 @@ export default function makeCryptoWith(opts) {
     });
   }
 
-  async function decrypt(output) {
-
+  async function decrypt(output, aad) {
+    _validateAAD(aad);
     const outputBytes = new Buffer(output, ENCRYPTION_RESULT_ENCODING);
 
     const salt = outputBytes.slice(0, SALT_LENGTH_IN_BYTES);
@@ -107,6 +126,10 @@ export default function makeCryptoWith(opts) {
     const key = await _generateKey(encryptionKey, salt);
     const decipher = crypto.createDecipheriv(CIPHER_ALGORITHM, key, iv);
     decipher.setAuthTag(tag);
+
+    if(aad != null) {
+      decipher.setAAD(Buffer.from(aad, 'utf8'));
+    }
 
     const decrypted = decipher.update(text, 'binary', 'utf8') + decipher.final('utf8');
     return JSON.parse(decrypted);
