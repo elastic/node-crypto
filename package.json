@@ -23,11 +23,8 @@
   },
   "homepage": "https://github.com/elastic/node-crypto#readme",
   "devDependencies": {
-    "@elastic/eslint-config-kibana": "0.15.0",
     "@types/jest": "24.0.12",
     "@types/node": "12.0.0",
-    "eslint": "4.1.0",
-    "eslint-plugin-mocha": "^4.9.0",
     "jest": "24.8.0",
     "nyc": "8.1.0",
     "prettier": "1.17.0",
