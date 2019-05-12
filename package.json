@@ -1,14 +1,15 @@
 {
   "name": "@elastic/node-crypto",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Easy (yet strong) encryption and decryption facilities for Node.js",
   "main": "lib/crypto.js",
   "scripts": {
     "clean": "rm -rf lib coverage* .nyc_output",
-    "build": "npm run clean && babel src --out-dir lib --ignore '**/*.test.js'",
+    "build": "npm run clean && tsc",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "test": "retire -n -p package.json && npm run build && npm run unit",
-    "unit": "nyc --require babel-core/register jest src/**"
+    "test": "retire -n -p package.json && npm run lint && npm run build && npm run unit",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "unit": "nyc jest"
   },
   "repository": {
     "type": "git",
@@ -22,15 +23,18 @@
   "homepage": "https://github.com/elastic/node-crypto#readme",
   "devDependencies": {
     "@elastic/eslint-config-kibana": "0.15.0",
-    "@spalger/babel-presets": "0.3.2",
-    "babel-cli": "6.16.0",
-    "babel-core": "6.17.0",
-    "babel-eslint": "8.0.0",
-    "babel-plugin-add-module-exports": "0.2.1",
+    "@types/jest": "24.0.12",
+    "@types/node": "12.0.0",
     "eslint": "4.1.0",
     "eslint-plugin-mocha": "^4.9.0",
-    "jest": "^23.0.0",
+    "jest": "24.8.0",
     "nyc": "8.1.0",
-    "retire": "1.2.10"
+    "prettier": "1.17.0",
+    "retire": "1.2.10",
+    "ts-jest": "24.0.2",
+    "tslint": "5.16.0",
+    "tslint-config-prettier": "1.18.0",
+    "tslint-plugin-prettier": "2.0.1",
+    "typescript": "3.4.5"
   }
 }

@@ -1,0 +1,23 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended",
+    "tslint-config-prettier"
+  ],
+
+  "jsRules": {},
+  "rules": {
+    "prettier": [true, {
+      "singleQuote": true,
+      "trailingComma": "es5",
+      "printWidth": 100
+    }],
+    "object-literal-sort-keys": false,
+    "interface-name": false,
+    "no-default-export": false,
+    "semicolon": [true, "always", "ignore-interfaces"]
+  },
+  "rulesDirectory": [
+    "tslint-plugin-prettier"
+  ]
+}
