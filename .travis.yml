@@ -11,7 +11,7 @@ notifications:
 
 before_script: npm install
 
-after_success: npm run coverage
+after_success: npm run coverage && bash <(curl -s https://codecov.io/bash)
 
 branches:
   only:

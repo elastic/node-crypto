@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "declaration": true,
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "noEmitOnError": true,
+    "noUnusedLocals": true,
+    "allowJs": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES5",
+    "outDir": "./lib",
+    "baseUrl": ".",
+    "rootDir": "./src",
+    "lib": [
+      "es6",
+      "es2017.object"
+    ]
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude" : ["src/**/*.test.ts"]
+}
