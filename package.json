@@ -5,12 +5,12 @@
   "main": "lib/crypto.js",
   "types": "lib/crypto.d.ts",
   "scripts": {
-    "clean": "rm -rf lib coverage* .nyc_output",
+    "clean": "rm -rf lib coverage",
     "build": "npm run clean && tsc",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "coverage": "jest --coverage && codecov",
     "test": "retire -n -p package.json && npm run lint && npm run build && npm run unit",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "unit": "nyc jest"
+    "unit": "jest"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,6 @@
     "@types/jest": "24.0.12",
     "@types/node": "12.0.0",
     "jest": "24.8.0",
-    "nyc": "15.0.0",
     "prettier": "1.17.0",
     "retire": "1.2.10",
     "ts-jest": "24.0.2",

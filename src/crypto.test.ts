@@ -10,6 +10,12 @@ describe('crypto', () => {
     crypto = makeCryptoWith(opts);
   });
 
+  it('throws if CryptoOptions does not include encryptionKey', () => {
+    expect(() => {
+      makeCryptoWith({} as any);
+    }).toThrow();
+  });
+
   describe('encrypt()', () => {
     it('fails if given an object that is not serializable', async () => {
       const testObj = () => 'I am a function';
