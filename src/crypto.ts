@@ -22,14 +22,12 @@ const CIPHER_ALGORITHM = 'aes-256-gcm';
 const ENCRYPTION_RESULT_ENCODING = 'base64';
 
 export interface CryptoOptions {
-  encryptionKey: string;
+  encryptionKey: string | Buffer;
 }
 
-type EncryptInput = string | object | number | boolean;
-
 export interface Crypto {
-  encrypt(input: EncryptInput, aad?: string): Promise<string>;
-  decrypt(output: string | Buffer, aad?: string): Promise<EncryptInput>;
+  encrypt<Input = any>(input: Input, aad?: string): Promise<string>;
+  decrypt<Output = any>(output: string | Buffer, aad?: string): Promise<Output>;
 }
 
 function _validateOpts({ encryptionKey }: CryptoOptions) {
