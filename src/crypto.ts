@@ -25,9 +25,11 @@ export interface CryptoOptions {
   encryptionKey: string | Buffer;
 }
 
+export type EncryptOutput = string | object | number | boolean;
+
 export interface Crypto {
   encrypt<Input = any>(input: Input, aad?: string): Promise<string>;
-  decrypt<Output = any>(output: string | Buffer, aad?: string): Promise<Output>;
+  decrypt(encryptedOutput: string | Buffer, aad?: string): Promise<EncryptOutput | EncryptOutput[]>;
 }
 
 function _validateOpts({ encryptionKey }: CryptoOptions) {
@@ -124,11 +126,11 @@ export default function makeCryptoWith(opts: CryptoOptions): Crypto {
         return Buffer.concat([salt, iv, tag, encrypted]).toString(ENCRYPTION_RESULT_ENCODING);
       });
     },
-    async decrypt(output, aad) {
+    async decrypt(encryptedOutput, aad) {
       _validateAAD(aad);
-      const outputBytes = Buffer.isBuffer(output)
-        ? output
-        : Buffer.from(output, ENCRYPTION_RESULT_ENCODING);
+      const outputBytes = Buffer.isBuffer(encryptedOutput)
+        ? encryptedOutput
+        : Buffer.from(encryptedOutput, ENCRYPTION_RESULT_ENCODING);
 
       const salt = outputBytes.slice(0, SALT_LENGTH_IN_BYTES);
       const iv = outputBytes.slice(SALT_LENGTH_IN_BYTES, SALT_LENGTH_IN_BYTES + IV_LENGTH_IN_BYTES);
