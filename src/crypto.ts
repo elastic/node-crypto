@@ -30,6 +30,8 @@ export type EncryptOutput = string | object | number | boolean;
 export interface Crypto {
   encrypt<Input = any>(input: Input, aad?: string): Promise<string>;
   decrypt(encryptedOutput: string | Buffer, aad?: string): Promise<EncryptOutput | EncryptOutput[]>;
+  encryptSync<Input = any>(input: Input, aad?: string): string;
+  decryptSync(encryptedOutput: string | Buffer, aad?: string): EncryptOutput | EncryptOutput[];
 }
 
 function _validateOpts({ encryptionKey }: CryptoOptions) {
@@ -60,6 +62,24 @@ function _generateIV() {
   return crypto.randomBytes(IV_LENGTH_IN_BYTES);
 }
 
+function _generateKeySync(encryptionKey: crypto.BinaryLike, salt: string | Buffer): Buffer {
+  if (!Buffer.isBuffer(salt)) {
+    salt = Buffer.from(salt, ENCRYPTION_RESULT_ENCODING);
+  }
+
+  const key = crypto.pbkdf2Sync(
+    encryptionKey,
+    salt,
+    KEY_ITERATIONS,
+    KEY_LENGTH_IN_BYTES,
+    KEY_DIGEST
+  );
+  if (!Buffer.isBuffer(key)) {
+    return Buffer.from(key, 'binary');
+  }
+  return key;
+}
+
 function _generateKey(encryptionKey: crypto.BinaryLike, salt: string | Buffer): Promise<Buffer> {
   if (!Buffer.isBuffer(salt)) {
     salt = Buffer.from(salt, ENCRYPTION_RESULT_ENCODING);
@@ -88,12 +108,60 @@ function _generateKey(encryptionKey: crypto.BinaryLike, salt: string | Buffer): 
   });
 }
 
-async function _serialize(serializable: any): Promise<string> {
+function _serialize(serializable: any): string {
   const serializedObj = JSON.stringify(serializable);
   if (serializedObj === undefined) {
     throw Error('Object to be encrypted must be serializable');
   }
   return serializedObj;
+}
+
+function encrypt<Input = any>(
+  serializedInput: string,
+  iv: Buffer,
+  key: Buffer,
+  salt: Buffer,
+  aad?: string
+): string {
+  const cipher = crypto.createCipheriv(CIPHER_ALGORITHM, key, iv);
+
+  if (aad != null) {
+    cipher.setAAD(Buffer.from(aad, 'utf8'));
+  }
+
+  const encrypted = Buffer.concat([cipher.update(serializedInput, 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+
+  return Buffer.concat([salt, iv, tag, encrypted]).toString(ENCRYPTION_RESULT_ENCODING);
+}
+
+function decrypt(
+  key: Buffer,
+  outputBytes: Buffer | Buffer,
+  aad?: string
+): EncryptOutput | EncryptOutput[] {
+  const iv = outputBytes.slice(SALT_LENGTH_IN_BYTES, SALT_LENGTH_IN_BYTES + IV_LENGTH_IN_BYTES);
+  const tag = outputBytes.slice(
+    SALT_LENGTH_IN_BYTES + IV_LENGTH_IN_BYTES,
+    SALT_LENGTH_IN_BYTES + IV_LENGTH_IN_BYTES + 16
+  ); // Auth tag is always 16 bytes long
+  const text = outputBytes.slice(SALT_LENGTH_IN_BYTES + IV_LENGTH_IN_BYTES + 16);
+
+  const decipher = crypto.createDecipheriv(CIPHER_ALGORITHM, key, iv);
+  decipher.setAuthTag(tag);
+
+  if (aad != null) {
+    decipher.setAAD(Buffer.from(aad, 'utf8'));
+  }
+
+  const decrypted = decipher.update(text, undefined, 'utf8') + decipher.final('utf8');
+  return JSON.parse(decrypted);
+}
+
+function asBuffer(encryptedOutput: string | Buffer) {
+  return Buffer.isBuffer(encryptedOutput)
+    ? encryptedOutput
+    : Buffer.from(encryptedOutput, ENCRYPTION_RESULT_ENCODING);
 }
 
 /**
@@ -107,49 +175,32 @@ export default function makeCryptoWith(opts: CryptoOptions): Crypto {
     async encrypt(input, aad) {
       _validateAAD(aad);
       const salt = _generateSalt();
-
-      return Promise.all([
-        _serialize(input),
-        _generateIV(),
-        _generateKey(encryptionKey, salt),
-      ]).then(results => {
-        const [serializedInput, iv, key] = results;
-        const cipher = crypto.createCipheriv(CIPHER_ALGORITHM, key, iv);
-
-        if (aad != null) {
-          cipher.setAAD(Buffer.from(aad, 'utf8'));
-        }
-
-        const encrypted = Buffer.concat([cipher.update(serializedInput, 'utf8'), cipher.final()]);
-        const tag = cipher.getAuthTag();
-
-        return Buffer.concat([salt, iv, tag, encrypted]).toString(ENCRYPTION_RESULT_ENCODING);
-      });
+      const serializedInput = _serialize(input);
+      const iv = _generateIV();
+      const key = await _generateKey(encryptionKey, salt);
+      return encrypt(serializedInput, iv, key, salt, aad);
     },
     async decrypt(encryptedOutput, aad) {
       _validateAAD(aad);
-      const outputBytes = Buffer.isBuffer(encryptedOutput)
-        ? encryptedOutput
-        : Buffer.from(encryptedOutput, ENCRYPTION_RESULT_ENCODING);
-
+      const outputBytes = asBuffer(encryptedOutput);
       const salt = outputBytes.slice(0, SALT_LENGTH_IN_BYTES);
-      const iv = outputBytes.slice(SALT_LENGTH_IN_BYTES, SALT_LENGTH_IN_BYTES + IV_LENGTH_IN_BYTES);
-      const tag = outputBytes.slice(
-        SALT_LENGTH_IN_BYTES + IV_LENGTH_IN_BYTES,
-        SALT_LENGTH_IN_BYTES + IV_LENGTH_IN_BYTES + 16
-      ); // Auth tag is always 16 bytes long
-      const text = outputBytes.slice(SALT_LENGTH_IN_BYTES + IV_LENGTH_IN_BYTES + 16);
-
       const key = await _generateKey(encryptionKey, salt);
-      const decipher = crypto.createDecipheriv(CIPHER_ALGORITHM, key, iv);
-      decipher.setAuthTag(tag);
-
-      if (aad != null) {
-        decipher.setAAD(Buffer.from(aad, 'utf8'));
-      }
-
-      const decrypted = decipher.update(text, undefined, 'utf8') + decipher.final('utf8');
-      return JSON.parse(decrypted);
+      return decrypt(key, outputBytes, aad);
+    },
+    encryptSync(input, aad) {
+      _validateAAD(aad);
+      const serializedInput = _serialize(input);
+      const iv = _generateIV();
+      const salt = _generateSalt();
+      const key = _generateKeySync(encryptionKey, salt);
+      return encrypt(serializedInput, iv, key, salt, aad);
+    },
+    decryptSync(encryptedOutput, aad) {
+      _validateAAD(aad);
+      const outputBytes = asBuffer(encryptedOutput);
+      const salt = outputBytes.slice(0, SALT_LENGTH_IN_BYTES);
+      const key = _generateKeySync(encryptionKey, salt);
+      return decrypt(key, outputBytes, aad);
     },
   };
 }
