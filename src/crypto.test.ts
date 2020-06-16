@@ -77,6 +77,58 @@ describe('crypto', () => {
     });
   });
 
+  describe('synchronous encrypt() and decrypt()', () => {
+    it('can handle strings', () => {
+      const testObj = 'I am a string';
+
+      const encrypted = crypto.encryptSync(testObj);
+      const decrypted = crypto.decryptSync(encrypted);
+
+      expect(decrypted).toEqual(testObj);
+    });
+
+    it('can handle numbers', () => {
+      const testObj = 234391265392819463321;
+
+      const encrypted = crypto.encryptSync(testObj);
+      const decrypted = crypto.decryptSync(encrypted);
+
+      expect(decrypted).toEqual(testObj);
+    });
+
+    it('can handle booleans', () => {
+      const testObj = false;
+
+      const encrypted = crypto.encryptSync(testObj);
+      const decrypted = crypto.decryptSync(encrypted);
+
+      expect(decrypted).toEqual(testObj);
+    });
+
+    it('can handle arrays', () => {
+      const testObj = [173, 'foo', false, { bar: 'baz' }];
+
+      const encrypted = crypto.encryptSync(testObj);
+      const decrypted = crypto.decryptSync(encrypted);
+
+      expect(decrypted).toEqual(testObj);
+    });
+
+    it('can handle objects', () => {
+      const testObj = {
+        aNumber: 17,
+        aString: 'baz',
+        anArray: [19, 23],
+        aBoolean: true,
+      };
+
+      const encrypted = crypto.encryptSync(testObj);
+      const decrypted = crypto.decryptSync(encrypted);
+
+      expect(decrypted).toEqual(testObj);
+    });
+  });
+
   describe('decrypt()', () => {
     it('fails when its input contains a modified salt', async () => {
       const testObj = 'I am a string';
@@ -126,6 +178,7 @@ describe('crypto', () => {
       );
     });
   });
+
 
   describe('backwards compatibility break test', () => {
     it('correctly decrypts a encrypted string literal', async () => {
