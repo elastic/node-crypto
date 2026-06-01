@@ -6,11 +6,11 @@
   "types": "lib/crypto.d.ts",
   "scripts": {
     "clean": "rimraf lib coverage",
-    "build": "npm run clean && tsc",
+    "build": "yarn clean && tsc",
     "test:coverage": "jest --coverage",
-    "test": "npm audit && npm run lint && npm run build && npm run unit",
+    "test": "yarn audit && yarn lint && yarn build && yarn unit",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "prepare": "npm run clean && npm run test",
+    "prepare": "yarn clean && yarn test",
     "unit": "jest"
   },
   "repository": {
