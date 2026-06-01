@@ -1,4 +1,16 @@
+import * as nodeCrypto from 'crypto';
 import makeCryptoWith, { Crypto } from './crypto';
+
+const originalRandomBytes = nodeCrypto.randomBytes;
+const originalPbkdf2Sync = nodeCrypto.pbkdf2Sync;
+
+const deriveKeyAsUint8Array = (
+  password: nodeCrypto.BinaryLike,
+  salt: nodeCrypto.BinaryLike,
+  iterations: number,
+  keylen: number,
+  digest: string
+) => Uint8Array.from(originalPbkdf2Sync(password, salt, iterations, keylen, digest));
 
 describe('crypto', () => {
   let crypto: Crypto;
@@ -279,6 +291,76 @@ describe('crypto', () => {
       await expect(crypto.decrypt(encrypted, '123456780')).rejects.toThrowError(
         /Unsupported state or unable to authenticate data/
       );
+    });
+  });
+
+  describe('internal key-generation branches', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    const mockRandomBytesAsUint8Array = () => {
+      jest
+        .spyOn(nodeCrypto, 'randomBytes')
+        .mockImplementation(((size: number) => Uint8Array.from(originalRandomBytes(size))) as any);
+    };
+
+    it('handles a non-Buffer salt during async key generation', async () => {
+      mockRandomBytesAsUint8Array();
+
+      const encrypted = await crypto.encrypt('I am a string');
+      const decrypted = await crypto.decrypt(encrypted);
+
+      expect(decrypted).toEqual('I am a string');
+    });
+
+    it('handles a non-Buffer salt during sync key generation', () => {
+      mockRandomBytesAsUint8Array();
+
+      const encrypted = crypto.encryptSync('I am a string');
+      const decrypted = crypto.decryptSync(encrypted);
+
+      expect(decrypted).toEqual('I am a string');
+    });
+
+    it('rejects when async key generation errors', async () => {
+      jest
+        .spyOn(nodeCrypto, 'pbkdf2')
+        .mockImplementation(((
+          _password: any,
+          _salt: any,
+          _iterations: any,
+          _keylen: any,
+          _digest: any,
+          callback: any
+        ) => callback(new Error('pbkdf2 failure'))) as any);
+
+      await expect(crypto.encrypt('I am a string')).rejects.toThrow(/pbkdf2 failure/);
+    });
+
+    it('handles a non-Buffer key during async key generation', async () => {
+      jest
+        .spyOn(nodeCrypto, 'pbkdf2')
+        .mockImplementation(((
+          password: any,
+          salt: any,
+          iterations: any,
+          keylen: any,
+          digest: any,
+          callback: any
+        ) => callback(null, deriveKeyAsUint8Array(password, salt, iterations, keylen, digest))) as any);
+
+      const encrypted = await crypto.encrypt('I am a string');
+      expect(typeof encrypted).toBe('string');
+    });
+
+    it('handles a non-Buffer key during sync key generation', () => {
+      jest
+        .spyOn(nodeCrypto, 'pbkdf2Sync')
+        .mockImplementation(deriveKeyAsUint8Array as any);
+
+      const encrypted = crypto.encryptSync('I am a string');
+      expect(typeof encrypted).toBe('string');
     });
   });
 });
